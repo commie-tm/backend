@@ -1,0 +1,22 @@
+{
+  "name": "commie-backend",
+  "version": "0.0.1-alpha",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/commie-tm/backend.git"
+  },
+  "author": {
+    "name": "Gourab Nag",
+    "email": "gourabnag12@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/commie-tm/backend/issues"
+  },
+  "homepage": "https://github.com/commie-tm/backend#readme"
+}

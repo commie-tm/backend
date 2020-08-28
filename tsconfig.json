@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "experimentalDecorators": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
