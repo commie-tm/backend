@@ -2,11 +2,17 @@
   "compilerOptions": {
     "strict": true,
     "experimentalDecorators": true,
-    "module": "ESNext",
+    "emitDecoratorMetadata": true,
+    "module": "CommonJS",
     "target": "ESNext",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "sourceMap": true
   },
   "include": [
     "src/**/*"
+  ],
+  "exclude": [
+    "node_modulse"
   ]
 }
