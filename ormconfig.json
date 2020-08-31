@@ -1,6 +1,7 @@
 {
   "type": "sqlite",
   "database": "./commie-tm-db.sqlite",
-  "entities": ["./dist/entities/*.js"],
-  "synchronize": true
+  "entities": ["./dist/src/entities/*.js"],
+  "synchronize": true,
+  "logging": true
 }

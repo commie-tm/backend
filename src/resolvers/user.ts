@@ -1,27 +1,63 @@
-import { Resolver, Mutation, Arg, Query } from "type-graphql";
-import { User, PublicUser } from "../entities/user";
+import { Resolver, Mutation, Arg, Query, Authorized } from "type-graphql";
+import { User, PublicUser, convertToPublicUser } from "../entities/user";
 import { UserInput } from "../inputs/user";
+import { Service } from "typedi";
+import { LoggerProvider } from "../services/logger-provider";
+import { hash } from 'bcrypt';
+import { UserFlag } from "../entities/user-flag";
 
+@Service()
 @Resolver(User)
 export class UserResolver {
-  @Mutation(type => User)
-  public async addUser(@Arg("user") userInput: UserInput): Promise<User> {
+  public constructor(
+    private readonly logger: LoggerProvider
+  ) {}
+
+  @Mutation(type => PublicUser)
+  public async addUser(@Arg("user") userInput: UserInput): Promise<PublicUser> {
+    const userFlags = UserFlag.create({
+      isAdmin: false,
+      isModerator: false
+    });
+    await userFlags.save();
+
     const user = User.create({
       ...userInput,
-      createdAt: new Date()
+      createdAt: new Date(),
+      password: await hash(userInput.password, 8),
+      flags: userFlags
     });
-    await user.save();
-    return user;
+    await user.save()
+    
+    await UserFlag.update({ id: userFlags.id }, { user });
+
+    return convertToPublicUser(user);
   }
 
   @Query(type => PublicUser)
   public async User(@Arg("username") username: string): Promise<PublicUser> {
-    const user = await User.findOne({ username });
-    if (!user) throw new Error("User not found");
-    return {
-      name: user.name,
-      username: user.username,
-      createdAt: user.createdAt
+    const user = await User.findOne({ username }, {
+      relations: ['flags']
+    });
+
+    if (!user) {
+      this.logger.getLogger().error(`User not found for requested username: ${username}`);
+      throw new Error("User not found");
     }
+
+    return convertToPublicUser(user);
+  }
+
+  @Mutation(type => PublicUser)
+  @Authorized("SELF", "MODERATOR")
+  public async deleteUser(@Arg('username') username: string): Promise<PublicUser> {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      this.logger.getLogger().error(`User not found for requested username: ${username}`);
+      throw new Error("User not found");
+    }
+
+    return convertToPublicUser(await user.remove());
   }
 }

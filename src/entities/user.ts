@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToOne, JoinColumn } from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
+import { UserFlag } from './user-flag';
 
 @ObjectType()
 export class PublicUser {
@@ -11,6 +12,15 @@ export class PublicUser {
   
   @Field()
   public createdAt!: Date;
+
+  @Field()
+  public email!: string;
+
+  @Field(type => UserFlag)
+  public flags!: UserFlag;
+
+  @Field()
+  public id!: number;
 }
 
 @Entity()
@@ -39,4 +49,19 @@ export class User extends BaseEntity {
   @Field(type => Date)
   @Column()
   public createdAt!: Date;
+
+  @OneToOne(type => UserFlag, flags => flags.user)
+  @JoinColumn()
+  public flags!: UserFlag;
+}
+
+export function convertToPublicUser(user: User): PublicUser {
+  return {
+    name: user.name,
+    username: user.username,
+    createdAt: user.createdAt,
+    email: user.email,
+    flags: user.flags,
+    id: user.id
+  };
 }

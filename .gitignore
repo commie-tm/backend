@@ -1,3 +1,4 @@
 node_modules/
 dist/
 commie-tm-db.sqlite
+config.json

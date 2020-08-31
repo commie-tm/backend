@@ -1,0 +1,39 @@
+import 'reflect-metadata';
+import Koa from 'koa';
+import { buildSchema } from 'type-graphql';
+import { UserResolver } from './src/resolvers/user';
+import { ApolloServer } from 'apollo-server-koa';
+import { createConnection, getConnectionOptions } from 'typeorm';
+import { Container } from 'typedi';
+import { authChecker } from './src/utils/auth-checker';
+import koaJwt from 'koa-jwt';
+import applicationConfig from './config.json';
+import { join as pathJoin } from 'path';
+import { buildContext } from './src/utils/context-builder';
+import { UserFlagResolver } from './src/resolvers/user-flag';
+
+async function main(): Promise<void> {
+  const koaApp = new Koa();
+
+  // koaApp.use(koaJwt({ secret: applicationConfig.JWT_SECRET }));
+
+  const schema = await buildSchema({
+    resolvers: [UserResolver, UserFlagResolver],
+    container: Container,
+    authChecker
+  });
+
+  // Uses configuration from /ormconfig.json
+  await createConnection();
+
+  const apolloServer = new ApolloServer({
+    schema,
+    context: ({ ctx }: { ctx: Koa.Context }) => { return buildContext(ctx); }
+  });
+  apolloServer.applyMiddleware({ app: koaApp });
+
+  console.log(`Server starting at http://localhost:${applicationConfig.HTTP_PORT}${apolloServer.graphqlPath}`);
+  koaApp.listen(Number(applicationConfig.HTTP_PORT));
+}
+
+main();

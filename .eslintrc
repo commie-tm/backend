@@ -6,5 +6,8 @@
   ],
   "extends": [
     "plugin:shopify/esnext"
-  ]
+  ],
+  "rules": {
+    "no-magic-numbers": "error"
+  }
 }
