@@ -55,15 +55,16 @@ export class UserResolver {
   }
 
   @Mutation(type => PublicUser)
-  @Authorized(AuthRoles.ADMIN, AuthRoles.MODERATOR)
+  @Authorized(AuthRoles.MODERATOR, AuthRoles.ADMIN)
   public async deleteUser(@Arg('username') username: string): Promise<PublicUser> {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }, { relations: ['flags'] });
 
     if (!user) {
       this.logger.getLogger().error(`User not found for requested username: ${username}`);
       throw new Error("User not found");
     }
 
+    await user.flags.remove();
     return convertToPublicUser(await user.remove());
   }
 

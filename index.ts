@@ -10,6 +10,7 @@ import { authChecker } from './src/utils/auth-checker';
 import applicationConfig from './config.json';
 import { buildContext } from './src/utils/context-builder';
 import { UserFlagResolver } from './src/resolvers/user-flag';
+import KoaStatic from 'koa-static';
 
 async function main(): Promise<void> {
   const koaApp = new Koa();
@@ -24,6 +25,10 @@ async function main(): Promise<void> {
 
   // Uses configuration from /ormconfig.json
   await createConnection();
+
+  if (applicationConfig.FRONTEND_PATH) {
+    koaApp.use(KoaStatic(applicationConfig.FRONTEND_PATH, {}));
+  }
 
   const apolloServer = new ApolloServer({
     schema,

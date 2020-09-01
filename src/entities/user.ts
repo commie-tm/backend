@@ -50,7 +50,7 @@ export class User extends BaseEntity {
   @Column()
   public createdAt!: Date;
 
-  @OneToOne(type => UserFlag, flags => flags.user)
+  @OneToOne(type => UserFlag, flags => flags.user, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   public flags!: UserFlag;
 }

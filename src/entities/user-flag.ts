@@ -17,7 +17,7 @@ export class UserFlag extends BaseEntity {
   @Column({ default: false })
   public isModerator!: boolean;
 
-  @OneToOne(type => User, user => user.flags)
+  @OneToOne(type => User, user => user.flags, { nullable: true })
   @JoinColumn()
-  public user!: User;
+  public user?: User;
 }
