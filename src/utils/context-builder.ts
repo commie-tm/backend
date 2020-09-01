@@ -6,6 +6,6 @@ export interface GQLContext {
 
 export function buildContext(ctx: Context): GQLContext {
   return {
-    jwt: ctx.request.headers["Authorization"]
+    jwt: ctx.request.headers.authorization
   };
 }

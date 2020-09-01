@@ -3,12 +3,11 @@ import Koa from 'koa';
 import { buildSchema } from 'type-graphql';
 import { UserResolver } from './src/resolvers/user';
 import { ApolloServer } from 'apollo-server-koa';
-import { createConnection, getConnectionOptions } from 'typeorm';
+import { createConnection } from 'typeorm';
 import { Container } from 'typedi';
 import { authChecker } from './src/utils/auth-checker';
-import koaJwt from 'koa-jwt';
+// import koaJwt from 'koa-jwt';
 import applicationConfig from './config.json';
-import { join as pathJoin } from 'path';
 import { buildContext } from './src/utils/context-builder';
 import { UserFlagResolver } from './src/resolvers/user-flag';
 

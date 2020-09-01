@@ -5,6 +5,12 @@ import { Service } from "typedi";
 import { LoggerProvider } from "../services/logger-provider";
 import { hash } from 'bcrypt';
 import { UserFlag } from "../entities/user-flag";
+import { AuthRoles } from "../utils/auth-checker";
+import { LoginResponse } from '../utils/authenticator';
+import { compare } from 'bcrypt';
+import { sign } from "jsonwebtoken";
+import applicationConfig from '../../config.json';
+import { UserAuthInput } from "../inputs/user-auth";
 
 @Service()
 @Resolver(User)
@@ -49,7 +55,7 @@ export class UserResolver {
   }
 
   @Mutation(type => PublicUser)
-  @Authorized("SELF", "MODERATOR")
+  @Authorized(AuthRoles.ADMIN, AuthRoles.MODERATOR)
   public async deleteUser(@Arg('username') username: string): Promise<PublicUser> {
     const user = await User.findOne({ username });
 
@@ -59,5 +65,24 @@ export class UserResolver {
     }
 
     return convertToPublicUser(await user.remove());
+  }
+
+  @Query(type => LoginResponse)
+  public async UserLogin(@Arg('userAuth') userAuth: UserAuthInput): Promise<LoginResponse> {
+    const user = await User.findOne({ username: userAuth.username });
+
+    if (!user) {
+      this.logger.getLogger().error(`User not found for requested username: ${userAuth.username}`);
+      throw new Error("User not found");
+    }
+
+    if (await compare(userAuth.password, user.password)) {
+      return {
+        jwt: sign({ username: user.username, }, applicationConfig.JWT_SECRET)
+      };
+    } else {
+      this.logger.getLogger().info(`Authentication failed for user: ${userAuth.username}`);
+      throw new Error(`Username and password do not match for username: ${userAuth.username}`);
+    }
   }
 }
