@@ -11,6 +11,7 @@ import applicationConfig from './config.json';
 import { buildContext } from './src/utils/context-builder';
 import { UserFlagResolver } from './src/resolvers/user-flag';
 import KoaStatic from 'koa-static';
+import { FrontendFallbackMiddleware } from './src/utils/frontend-fallback';
 
 async function main(): Promise<void> {
   const koaApp = new Koa();
@@ -28,6 +29,7 @@ async function main(): Promise<void> {
 
   if (applicationConfig.FRONTEND_PATH) {
     koaApp.use(KoaStatic(applicationConfig.FRONTEND_PATH, {}));
+    koaApp.use(FrontendFallbackMiddleware);
   }
 
   const apolloServer = new ApolloServer({
