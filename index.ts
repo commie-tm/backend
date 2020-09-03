@@ -27,16 +27,16 @@ async function main(): Promise<void> {
   // Uses configuration from /ormconfig.json
   await createConnection();
 
-  if (applicationConfig.FRONTEND_PATH) {
-    koaApp.use(KoaStatic(applicationConfig.FRONTEND_PATH, {}));
-    koaApp.use(FrontendFallbackMiddleware);
-  }
-
   const apolloServer = new ApolloServer({
     schema,
     context: ({ ctx }: { ctx: Koa.Context }) => { return buildContext(ctx); }
   });
   apolloServer.applyMiddleware({ app: koaApp });
+
+  if (applicationConfig.FRONTEND_PATH) {
+    koaApp.use(KoaStatic(applicationConfig.FRONTEND_PATH, {}));
+    koaApp.use(FrontendFallbackMiddleware);
+  }
 
   console.log(`Server starting at http://localhost:${applicationConfig.HTTP_PORT}${apolloServer.graphqlPath}`);
   koaApp.listen(Number(applicationConfig.HTTP_PORT));

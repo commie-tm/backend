@@ -19,8 +19,8 @@ export class UserResolver {
     private readonly logger: LoggerProvider
   ) {}
 
-  @Mutation(type => PublicUser)
-  public async addUser(@Arg("user") userInput: UserInput): Promise<PublicUser> {
+  @Mutation(type => LoginResponse)
+  public async addUser(@Arg("user") userInput: UserInput): Promise<LoginResponse> {
     const userFlags = UserFlag.create({
       isAdmin: false,
       isModerator: false
@@ -37,7 +37,9 @@ export class UserResolver {
     
     await UserFlag.update({ id: userFlags.id }, { user });
 
-    return convertToPublicUser(user);
+    return {
+      jwt: sign({ username: userInput.username }, applicationConfig.JWT_SECRET)
+    };
   }
 
   @Query(type => PublicUser)
